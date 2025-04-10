@@ -214,21 +214,11 @@ fn start_event_preprocessor(
     std::thread::spawn(move || {
         let mut debounce_algorithm = {
             let duration_ms = *debounce_duration_ms.lock();
-            AsymEagerDeferPk::new(duration_ms)
+            AsymEagerDeferPk::new(
+                duration_ms,
+                process_tx.clone()
+            )
         };
-        loop {
-            match preprocess_rx.try_recv() {
-                Ok(kev) => {
-                    log::info!("Received event: {:?}", kev);
-                    debounce_algorithm.process_event(kev, &process_tx);
-                }
-                Err(TryRecvError::Empty) => {
-                    std::thread::sleep(Duration::from_millis(1));
-                }
-                Err(TryRecvError::Disconnected) => {
-                    panic!("channel disconnected");
-                }
-            }
-        }
+        debounce_algorithm.event_preprocessor();
     });
 }
