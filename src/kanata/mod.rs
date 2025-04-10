@@ -243,7 +243,7 @@ pub struct Kanata {
     /// Stores user's saved clipboard contents.
     pub saved_clipboard_content: SavedClipboardData,
     #[cfg(target_os = "linux")]
-    pub linux_debounce_duration: u64,
+    pub linux_debounce_duration: Arc<Mutex<u16>>,
 }
 
 #[derive(PartialEq, Clone, Copy)]
@@ -449,7 +449,7 @@ impl Kanata {
             macro_on_press_cancel_duration: 0,
             saved_clipboard_content: Default::default(),
             #[cfg(target_os = "linux")]
-            linux_debounce_duration: cfg.options.linux_opts.linux_debounce_duration_ms,
+            linux_debounce_duration: Arc::new(Mutex::new(cfg.options.linux_opts.linux_debounce_duration_ms)),
         })
     }
 
@@ -587,7 +587,7 @@ impl Kanata {
             macro_on_press_cancel_duration: 0,
             saved_clipboard_content: Default::default(),
             #[cfg(target_os = "linux")]
-            linux_debounce_duration: cfg.options.linux_opts.linux_debounce_duration_ms,
+            linux_debounce_duration: Arc::new(Mutex::new(cfg.options.linux_opts.linux_debounce_duration_ms)),
         })
     }
 
