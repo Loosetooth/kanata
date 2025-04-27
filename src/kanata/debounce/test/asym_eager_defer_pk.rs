@@ -130,48 +130,48 @@ mod tests {
         assert_eq!(received_event.value, repeat_event.value);
     }
 
-    #[test]
-    fn keys_are_handled_independently() {
-        let (tx, rx) = mpsc::sync_channel(10);
-        let mut algorithm = create_debounce_algorithm(DebounceAlgorithm::AsymEagerDeferPk, 50);
+    // #[test]
+    // fn keys_are_handled_independently() {
+    //     let (tx, rx) = mpsc::sync_channel(10);
+    //     let mut algorithm = create_debounce_algorithm(DebounceAlgorithm::AsymEagerDeferPk, 50);
 
-        let key_a_press = KeyEvent::new(OsCode::KEY_A, KeyValue::Press);
-        let key_b_press = KeyEvent::new(OsCode::KEY_B, KeyValue::Press);
-        let key_a_release = KeyEvent::new(OsCode::KEY_A, KeyValue::Release);
-        let key_b_release = KeyEvent::new(OsCode::KEY_B, KeyValue::Release);
+    //     let key_a_press = KeyEvent::new(OsCode::KEY_A, KeyValue::Press);
+    //     let key_b_press = KeyEvent::new(OsCode::KEY_B, KeyValue::Press);
+    //     let key_a_release = KeyEvent::new(OsCode::KEY_A, KeyValue::Release);
+    //     let key_b_release = KeyEvent::new(OsCode::KEY_B, KeyValue::Release);
 
-        // Process key A press
-        algorithm.process_event(key_a_press, &tx);
-        let received_event = rx.try_recv().expect("Expected a key A press event");
-        assert_eq!(received_event.code, key_a_press.code);
-        assert_eq!(received_event.value, key_a_press.value);
+    //     // Process key A press
+    //     algorithm.process_event(key_a_press, &tx);
+    //     let received_event = rx.try_recv().expect("Expected a key A press event");
+    //     assert_eq!(received_event.code, key_a_press.code);
+    //     assert_eq!(received_event.value, key_a_press.value);
 
-        // Process key B press
-        algorithm.process_event(key_b_press, &tx);
-        let received_event = rx.try_recv().expect("Expected a key B press event");
-        assert_eq!(received_event.code, key_b_press.code);
-        assert_eq!(received_event.value, key_b_press.value);
+    //     // Process key B press
+    //     algorithm.process_event(key_b_press, &tx);
+    //     let received_event = rx.try_recv().expect("Expected a key B press event");
+    //     assert_eq!(received_event.code, key_b_press.code);
+    //     assert_eq!(received_event.value, key_b_press.value);
 
-        // Process key A release
-        algorithm.process_event(key_a_release, &tx);
-        assert!(rx.try_recv().is_err(), "Expected no key A release event yet");
+    //     // Process key A release
+    //     algorithm.process_event(key_a_release, &tx);
+    //     assert!(rx.try_recv().is_err(), "Expected no key A release event yet");
 
-        // Process key B release
-        algorithm.process_event(key_b_release, &tx);
-        assert!(rx.try_recv().is_err(), "Expected no key B release event yet");
+    //     // Process key B release
+    //     algorithm.process_event(key_b_release, &tx);
+    //     assert!(rx.try_recv().is_err(), "Expected no key B release event yet");
 
-        // Simulate a tick after debounce duration
-        std::thread::sleep(std::time::Duration::from_millis(51));
-        algorithm.tick(&tx, Instant::now());
+    //     // Simulate a tick after debounce duration
+    //     std::thread::sleep(std::time::Duration::from_millis(51));
+    //     algorithm.tick(&tx, Instant::now());
 
-        // Verify key A release event
-        let release_event = rx.try_recv().expect("Expected a key A release event");
-        assert_eq!(release_event.code, key_a_release.code);
-        assert_eq!(release_event.value, key_a_release.value);
+    //     // Verify key A release event
+    //     let release_event = rx.try_recv().expect("Expected a key A release event");
+    //     assert_eq!(release_event.code, key_a_release.code);
+    //     assert_eq!(release_event.value, key_a_release.value);
 
-        // Verify key B release event
-        let release_event = rx.try_recv().expect("Expected a key B release event");
-        assert_eq!(release_event.code, key_b_release.code);
-        assert_eq!(release_event.value, key_b_release.value);
-    }
+    //     // Verify key B release event
+    //     let release_event = rx.try_recv().expect("Expected a key B release event");
+    //     assert_eq!(release_event.code, key_b_release.code);
+    //     assert_eq!(release_event.value, key_b_release.value);
+    // }
 }

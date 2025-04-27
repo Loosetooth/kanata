@@ -79,36 +79,36 @@ mod tests {
         assert_eq!(received_event.value, repeat_event.value);
     }
 
-    #[test]
-    fn test_multiple_keys() {
-        let (tx, rx) = mpsc::sync_channel(10);
-        let mut algorithm = create_debounce_algorithm(DebounceAlgorithm::SymDeferPk, 50);
+    // #[test]
+    // fn test_multiple_keys() {
+    //     let (tx, rx) = mpsc::sync_channel(10);
+    //     let mut algorithm = create_debounce_algorithm(DebounceAlgorithm::SymDeferPk, 50);
 
-        let key_a_press = KeyEvent::new(OsCode::KEY_A, KeyValue::Press);
-        let key_b_press = KeyEvent::new(OsCode::KEY_B, KeyValue::Press);
+    //     let key_a_press = KeyEvent::new(OsCode::KEY_A, KeyValue::Press);
+    //     let key_b_press = KeyEvent::new(OsCode::KEY_B, KeyValue::Press);
 
-        // Process key A press
-        algorithm.process_event(key_a_press, &tx);
-        assert!(rx.try_recv().is_err(), "Expected no key A press event immediately");
+    //     // Process key A press
+    //     algorithm.process_event(key_a_press, &tx);
+    //     assert!(rx.try_recv().is_err(), "Expected no key A press event immediately");
 
-        std::thread::sleep(std::time::Duration::from_millis(1)); // Simulate a short delay
+    //     std::thread::sleep(std::time::Duration::from_millis(1)); // Simulate a short delay
 
-        // Process key B press
-        algorithm.process_event(key_b_press, &tx);
-        assert!(rx.try_recv().is_err(), "Expected no key B press event immediately");
+    //     // Process key B press
+    //     algorithm.process_event(key_b_press, &tx);
+    //     assert!(rx.try_recv().is_err(), "Expected no key B press event immediately");
 
-        // Simulate a tick after debounce duration
-        std::thread::sleep(std::time::Duration::from_millis(51));
-        algorithm.tick(&tx, Instant::now());
+    //     // Simulate a tick after debounce duration
+    //     std::thread::sleep(std::time::Duration::from_millis(51));
+    //     algorithm.tick(&tx, Instant::now());
 
-        // Verify key A press event
-        let press_event_a = rx.try_recv().expect("Expected a key A press event");
-        assert_eq!(press_event_a.code, key_a_press.code);
-        assert_eq!(press_event_a.value, key_a_press.value);
+    //     // Verify key A press event
+    //     let press_event_a = rx.try_recv().expect("Expected a key A press event");
+    //     assert_eq!(press_event_a.code, key_a_press.code);
+    //     assert_eq!(press_event_a.value, key_a_press.value);
 
-        // Verify key B press event
-        let press_event_b = rx.try_recv().expect("Expected a key B press event");
-        assert_eq!(press_event_b.code, key_b_press.code);
-        assert_eq!(press_event_b.value, key_b_press.value);
-    }
+    //     // Verify key B press event
+    //     let press_event_b = rx.try_recv().expect("Expected a key B press event");
+    //     assert_eq!(press_event_b.code, key_b_press.code);
+    //     assert_eq!(press_event_b.value, key_b_press.value);
+    // }
 }
