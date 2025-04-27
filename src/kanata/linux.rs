@@ -4,7 +4,7 @@
 )]
 
 use anyhow::{anyhow, bail, Result};
-use evdev::{InputEvent, InputEventKind, RelativeAxisType};
+use evdev::{EventType, InputEvent, InputEventKind, RelativeAxisType};
 use log::info;
 use parking_lot::Mutex;
 use std::convert::TryFrom;
@@ -61,8 +61,43 @@ impl Kanata {
                 let key_event = match KeyEvent::try_from(in_event) {
                     Ok(ev) => ev,
                     _ => {
+                        // log::debug!("event not a key event: {:?}", in_event);
                         // Pass-through non-key and non-scroll events
                         let mut kanata = kanata.lock();
+
+                        // Swap X and Y coordinates for any RelAxis event
+                        match in_event.kind() {
+                            InputEventKind::RelAxis(RelativeAxisType::REL_X) => {
+                                // log::info!("Swapping REL_X to REL_Y");
+                                let swapped_event = InputEvent::new_now(
+                                    EventType::RELATIVE,
+                                    RelativeAxisType::REL_Y.0,
+                                    in_event.value(),
+                                );
+                                #[cfg(not(feature = "simulated_output"))]
+                                kanata
+                                    .kbd_out
+                                    .write_raw(swapped_event)
+                                    .map_err(|e| anyhow!("failed write: {}", e))?;
+                                continue;
+                            }
+                            InputEventKind::RelAxis(RelativeAxisType::REL_Y) => {
+                                // log::info!("Swapping REL_Y to REL_X");
+                                let swapped_event = InputEvent::new_now(
+                                    EventType::RELATIVE,
+                                    RelativeAxisType::REL_X.0,
+                                    -in_event.value(),
+                                );
+                                #[cfg(not(feature = "simulated_output"))]
+                                kanata
+                                    .kbd_out
+                                    .write_raw(swapped_event)
+                                    .map_err(|e| anyhow!("failed write: {}", e))?;
+                                continue;
+                            }
+                            _ => {}
+                        }
+
                         #[cfg(not(feature = "simulated_output"))]
                         kanata
                             .kbd_out
